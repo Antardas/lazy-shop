@@ -1,5 +1,6 @@
 const catchAsyncError = require('../middlewares/catchAsyncError'); // Instead repatative try catch block
 const productCollection = require('../models/productsModel');
+const ApiFeatures = require('../utils/apiFeatures');
 const ErrorHandler = require('../utils/errorHandler');
 
 // Create Product
@@ -24,8 +25,13 @@ exports.getOneProduct = catchAsyncError(async (req, res, next) => {
 
 // ---------------Read All Producs
 exports.getAllProducts = catchAsyncError(async (req, res) => {
-    const products = await productCollection.find();
-    console.log(products);
+    const limitPerPage = 5;
+    const apiFeatures = new ApiFeatures(productCollection.find(), req.query)
+        .search()
+        .filter()
+        .pagination(limitPerPage);
+    const products = await apiFeatures.query;
+    console.log(products.length);
     res.status(200).json({
         success: true,
         products,
