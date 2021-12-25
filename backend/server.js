@@ -13,6 +13,15 @@ app.get('/', (req, res) => {
     res.json('Your Server Working');
 });
 
-app.listen(port, (req, res) => {
+const server = app.listen(port, (req, res) => {
     console.log('Server is Runing On', port);
+});
+
+// unhandeled Promise Rejection
+process.on('unhandledRejection', (err) => {
+    console.log(`Error: ${err.message}`);
+    console.log('Shutting Down the Server due to unhandled Promise Rejection');
+    server.close(() => {
+        process.exit(1);
+    });
 });
