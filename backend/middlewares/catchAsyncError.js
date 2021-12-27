@@ -2,4 +2,5 @@
 const catchAsyncError = (errorFunc) => (req, res, next) => {
     Promise.resolve(errorFunc(req, res, next)).catch(next);
 };
+
 module.exports = catchAsyncError;
