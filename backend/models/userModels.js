@@ -47,6 +47,7 @@ const userSchema = new mongoose.Schema({
 // change normal password to hash password
 
 userSchema.pre('save', async function (next) {
+    console.log(this.password, 'passwrod');
     // if password didn't change
     if (!this.isModified('password')) return next();
     this.password = await bcrypt.hash(this.password, 10);
