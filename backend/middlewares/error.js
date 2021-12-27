@@ -7,6 +7,7 @@ module.exports = (err, req, res, next) => {
 
     // Handle Mongodb Wrong ID Error
     if (err.name === 'CastError') {
+        console.log('Handle Wrong  JWT token');
         const message = `Resource not found. Invalid: ${err.path}`;
         error = new ErrorHandler(message, 400);
     }
@@ -19,6 +20,7 @@ module.exports = (err, req, res, next) => {
 
     // Handle Wrong  JWT token
     if (err.name === 'JsonWebTokenError') {
+        console.log('Handle Wrong  JWT token');
         const message = 'Json Web Token Invalid Try again';
         error = new ErrorHandler(message, 400);
     }
