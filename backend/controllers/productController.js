@@ -5,6 +5,8 @@ const ErrorHandler = require('../utils/errorHandler');
 
 // Create Product
 exports.createProduct = catchAsyncError(async (req, res, next) => {
+    req.body.user = req.user.id;
+    console.log(req.body);
     const product = await productCollection.create(req.body);
     res.status(201).json({
         success: true,

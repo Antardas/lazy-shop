@@ -4,6 +4,7 @@ const generateToken = require('../routes/jwtToken');
 const ErrorHandler = require('../utils/errorHandler');
 // Register a user
 exports.registerUser = catchAsyncError(async (req, res, next) => {
+    console.log('fromRegisterUser');
     const { name, email, password } = req.body;
 
     // Create a user
@@ -30,9 +31,18 @@ exports.logInUser = catchAsyncError(async (req, res, next) => {
     if (!user) return next(new ErrorHandler('Invalid email & password', 401));
 
     const isPasswordMatch = await user.comparePassword(password);
-    console.log(isPasswordMatch);
     if (!isPasswordMatch) return next(new ErrorHandler('Invalid email & password', 401));
     generateToken(user, 200, res);
 });
 
-// https://youtu.be/AN3t-OmdyKA?t=9063
+// Log out user
+exports.logoutUser = catchAsyncError(async (req, res, next) => {
+    res.cookie('token', null, {
+        expires: new Date(Date.now()),
+        httpOnly: true,
+    });
+    res.status(200).json({
+        success: true,
+        message: 'Log Out successFully',
+    });
+});
