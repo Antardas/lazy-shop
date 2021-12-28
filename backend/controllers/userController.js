@@ -1,6 +1,7 @@
+/* eslint-disable consistent-return */
 const crypto = require('crypto');
 const catchAsyncError = require('../middlewares/catchAsyncError'); // Instead repatative try catch block
-const userModel = require('../models/userModels');
+const User = require('../models/userModels');
 const generateToken = require('../routes/jwtToken');
 const ErrorHandler = require('../utils/errorHandler');
 const sendEmail = require('../utils/sendEmail');
@@ -10,7 +11,7 @@ exports.registerUser = catchAsyncError(async (req, res, next) => {
     const { name, email, password } = req.body;
 
     // Create a user
-    const user = await userModel.create({
+    const user = await User.create({
         name,
         email,
         password,
@@ -28,7 +29,7 @@ exports.logInUser = catchAsyncError(async (req, res, next) => {
     if (!email || !password) return next(new ErrorHandler('Please Enter Email & password', 400));
 
     // Find user via email & user from DB
-    const user = await userModel.findOne({ email }).select('+password');
+    const user = await User.findOne({ email }).select('+password');
 
     if (!user) return next(new ErrorHandler('Invalid email & password', 401));
 
@@ -52,7 +53,7 @@ exports.logoutUser = catchAsyncError(async (req, res, next) => {
 // Forgot password
 exports.forgotPassword = catchAsyncError(async (req, res, next) => {
     const { email } = req.body;
-    const user = await userModel.findOne({ email });
+    const user = await User.findOne({ email });
     if (!user) {
         return next(new ErrorHandler('User not found', 404));
     }
@@ -88,7 +89,7 @@ exports.forgotPassword = catchAsyncError(async (req, res, next) => {
 exports.resetPassword = catchAsyncError(async (req, res, next) => {
     // Creating Hash Token
     const resetPasswordToken = crypto.createHash('sha256').update(req.params.token).digest('hex');
-    const user = await userModel.findOne({
+    const user = await User.findOne({
         resetPasswordToken,
         resetPasswordExpire: { $gt: Date.now() },
     });
@@ -110,7 +111,7 @@ exports.resetPassword = catchAsyncError(async (req, res, next) => {
 
 // Get User Detail
 exports.getUserDetails = catchAsyncError(async (req, res, next) => {
-    const user = await userModel.findById({ _id: req.user.id });
+    const user = await User.findById(req.user.id);
 
     res.status(200).json({ success: true, user });
 });
@@ -118,7 +119,7 @@ exports.getUserDetails = catchAsyncError(async (req, res, next) => {
 // Update user Password
 
 exports.updatePassword = catchAsyncError(async (req, res, next) => {
-    const user = await userModel.findById(req.user.id).select('+password');
+    const user = await User.findById(req.user.id).select('+password');
 
     const isPasswordMatch = await user.comparePassword(req.body.oldPassword);
 
@@ -133,3 +134,65 @@ exports.updatePassword = catchAsyncError(async (req, res, next) => {
     await user.save();
     generateToken(user, 200, res);
 });
+
+// Update User Profile
+
+exports.updateUserProfile = catchAsyncError(async (req, res, next) => {
+    const newUserData = {
+        name: req.body.name,
+        email: req.body.email,
+    };
+
+    // We will cloudnari leter
+    const user = await User.findByIdAndUpdate(req.user.id, newUserData, {
+        new: true,
+        runValidators: true,
+        useFindAndModify: false,
+    });
+    res.status(200).json({ success: true, user });
+});
+
+// Get all user -- Admin
+
+exports.getAllUsers = catchAsyncError(async (req, res, next) => {
+    const users = await User.find();
+    res.status(200).json({ success: true, users });
+});
+
+// Get single User -- Admin
+
+exports.getSingleUser = catchAsyncError(async (req, res, next) => {
+    const userId = req.params.id;
+    const user = await User.findById(userId);
+    res.status(200).json({ success: true, user });
+});
+
+// Update User role -- Admin
+
+exports.updateUserRole = catchAsyncError(async (req, res, next) => {
+    const newUserData = {
+        role: req.body.role,
+    };
+
+    const user = await User.findByIdAndUpdate(req.params.id, newUserData, {
+        new: true,
+        runValidators: true,
+        useFindAndModify: false,
+    });
+    res.status(200).json({ success: true, user });
+});
+
+// Delete user -- Admin
+
+exports.deleteUser = catchAsyncError(async (req, res, next) => {
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+        return next(new ErrorHandler('User Not Found', 400));
+    }
+
+    await user.remove();
+    res.status(200).json({ success: true, user });
+});
+
+// 

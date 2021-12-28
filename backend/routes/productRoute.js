@@ -12,10 +12,11 @@ const router = express.Router();
 
 // Prodoct CRUD Operation Routes
 router.route('/products').get(getAllProducts);
-router.route('/products/new').post(isAuthenticated, authorizedRoles('admin'), createProduct);
+router.route('/products/:id').get(getOneProduct);
+router.route('/admin/products/new').post(isAuthenticated, authorizedRoles('admin'), createProduct);
 router
-    .route('/products/:id')
+    .route('/admin/products/:id')
     .put(isAuthenticated, authorizedRoles('admin'), updateProduct)
-    .delete(isAuthenticated, authorizedRoles('admin'), deleteProduct)
-    .get(getOneProduct);
+    .delete(isAuthenticated, authorizedRoles('admin'), deleteProduct);
+
 module.exports = router;

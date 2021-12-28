@@ -1,5 +1,5 @@
 const catchAsyncError = require('../middlewares/catchAsyncError'); // Instead repatative try catch block
-const productCollection = require('../models/productsModel');
+const Product = require('../models/productsModel');
 const ApiFeatures = require('../utils/apiFeatures');
 const ErrorHandler = require('../utils/errorHandler');
 
@@ -7,7 +7,7 @@ const ErrorHandler = require('../utils/errorHandler');
 exports.createProduct = catchAsyncError(async (req, res, next) => {
     req.body.user = req.user.id;
     console.log(req.body);
-    const product = await productCollection.create(req.body);
+    const product = await Product.create(req.body);
     res.status(201).json({
         success: true,
         product,
@@ -16,7 +16,7 @@ exports.createProduct = catchAsyncError(async (req, res, next) => {
 
 // ------------ Read Single Products
 exports.getOneProduct = catchAsyncError(async (req, res, next) => {
-    const product = await productCollection.findById(req.params.id.match(/^[0-9a-fA-F]{24}$/));
+    const product = await Product.findById(req.params.id.match(/^[0-9a-fA-F]{24}$/));
     console.log(req.params.id);
     if (product) {
         res.status(200).json({ success: true, product });
@@ -28,8 +28,8 @@ exports.getOneProduct = catchAsyncError(async (req, res, next) => {
 // ---------------Read All Producs
 exports.getAllProducts = catchAsyncError(async (req, res) => {
     const limitPerPage = 5;
-    const productCount = await productCollection.countDocuments();
-    const apiFeatures = new ApiFeatures(productCollection.find(), req.query)
+    const productCount = await Product.countDocuments();
+    const apiFeatures = new ApiFeatures(Product.find(), req.query)
         .search()
         .filter()
         .pagination(limitPerPage);
@@ -44,9 +44,9 @@ exports.getAllProducts = catchAsyncError(async (req, res) => {
 
 // --------------- Update Product --  Admin
 exports.updateProduct = catchAsyncError(async (req, res, next) => {
-    let product = await productCollection.findById(req.params.id);
+    let product = await Product.findById(req.params.id);
     if (product) {
-        product = await productCollection.findByIdAndUpdate(req.params.id, req.body, {
+        product = await Product.findByIdAndUpdate(req.params.id, req.body, {
             new: true,
             runValidators: true,
             useFindAndModify: false,
@@ -59,7 +59,7 @@ exports.updateProduct = catchAsyncError(async (req, res, next) => {
 
 // ------------ Delete Product --Admin
 exports.deleteProduct = catchAsyncError(async (req, res, next) => {
-    const product = await productCollection.findById(req.params.id);
+    const product = await Product.findById(req.params.id);
     console.log(product);
     if (product) {
         await product.remove();
