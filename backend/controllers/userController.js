@@ -116,3 +116,20 @@ exports.getUserDetails = catchAsyncError(async (req, res, next) => {
 });
 
 // Update user Password
+
+exports.updatePassword = catchAsyncError(async (req, res, next) => {
+    const user = await userModel.findById(req.user.id).select('+password');
+
+    const isPasswordMatch = await user.comparePassword(req.body.oldPassword);
+
+    if (!isPasswordMatch) {
+        return next(new ErrorHandler('Old password is incorrenct', 400));
+    }
+
+    if (req.body.newPassword !== req.body.newConfirmPassword) {
+        return next(new ErrorHandler('confirm password is incorrenct', 400));
+    }
+    user.password = req.body.newPassword;
+    await user.save();
+    generateToken(user, 200, res);
+});

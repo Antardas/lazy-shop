@@ -6,6 +6,7 @@ process.on('uncaughtException', (err) => {
     console.log(`Error: ${err.message}`);
     console.log('Shutting Down the Server due to unhandled Promise Rejection');
 });
+
 // Config
 dotenv.config({ path: 'backend/config/config.env' });
 const port = process.env.PORT || 5000;

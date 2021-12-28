@@ -9,10 +9,10 @@ exports.isAuthenticated = catchAsyncError(async (req, res, next) => {
     if (!token) {
         return next(new ErrorHandler('Please log in to access this resources', 401));
     }
-    
+
     // if token found then checking token valid or invalid
     const decodedData = jwt.verify(token, process.env.JWT_SECRET);
-    
+
     console.log('isAuthenticated Function Runing from auth.js');
     req.user = await userModel.findById(decodedData.id);
     console.log(req.user, 'from auth.js');
@@ -23,7 +23,7 @@ exports.isAuthenticated = catchAsyncError(async (req, res, next) => {
 exports.authorizedRoles = (...roles) => (req, res, next) => {
         if (!roles.includes(req.user.role)) {
             return next(
-                new ErrorHandler(`Role: ${req.user.role} is not allowed access this Resources`, 403)
+                new ErrorHandler(`Role: ${req.user.role} is not allowed access this Resources`, 403),
             );
         }
         next();
