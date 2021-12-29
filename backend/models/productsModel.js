@@ -16,7 +16,7 @@ const productSchema = new mongoose.Schema({
         required: true,
         maxLength: [8, 'Price Cannot Excced 8 Character'],
     },
-    rating: {
+    ratings: {
         type: Number,
         default: 0,
     },
@@ -48,6 +48,11 @@ const productSchema = new mongoose.Schema({
     },
     reviews: [
         {
+            user: {
+                type: mongoose.Schema.ObjectId,
+                ref: 'user',
+                required: true,
+            },
             name: {
                 type: String,
                 required: true,
@@ -71,6 +76,6 @@ const productSchema = new mongoose.Schema({
         default: Date.now,
     },
 });
-const productModel = mongoose.model('Product', productSchema);
+const Product = mongoose.model('Product', productSchema);
 
-module.exports = productModel;
+module.exports = Product;

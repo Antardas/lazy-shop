@@ -64,7 +64,7 @@ exports.forgotPassword = catchAsyncError(async (req, res, next) => {
     user.save({ validateBeforeSave: false });
 
     const resetPasswordUrl = `${req.protocol}://${req.get(
-        'host',
+        'host'
     )}/api/v1/password/reset/${resetToken}`;
     const message = `your Reset password Token is :- \n\n ${resetPasswordUrl} \n\n if you have not request this email then Please Ignore it`;
     try {
@@ -194,5 +194,3 @@ exports.deleteUser = catchAsyncError(async (req, res, next) => {
     await user.remove();
     res.status(200).json({ success: true, user });
 });
-
-// 

@@ -12,10 +12,7 @@ exports.isAuthenticated = catchAsyncError(async (req, res, next) => {
 
     // if token found then checking token valid or invalid
     const decodedData = jwt.verify(token, process.env.JWT_SECRET);
-
-    console.log('isAuthenticated Function Runing from auth.js');
     req.user = await userModel.findById(decodedData.id);
-    console.log(req.user, 'from auth.js');
     next();
 });
 
