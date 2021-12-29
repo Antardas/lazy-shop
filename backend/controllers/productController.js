@@ -97,10 +97,9 @@ exports.createReview = catchAsyncError(async (req, res, next) => {
         console.log(isReviewd, 'isReviewd');
     }
     let ratingsAvg = 0;
-    const totalReviewCount = product.reviews.forEach((rev) => {
+    product.reviews.forEach((rev) => {
         ratingsAvg += rev.rating;
     });
-    console.log(totalReviewCount);
     product.ratings = (ratingsAvg / product.reviews.length).toFixed(1);
     console.log(product.ratings);
     await product.save({ validateBeforeSave: false });
@@ -109,11 +108,39 @@ exports.createReview = catchAsyncError(async (req, res, next) => {
 
 // Get all reviews of a product
 exports.getAllReviews = catchAsyncError(async (req, res, next) => {
-    const product = await Product.findById(req.params.id);
-    
+    const product = await Product.findById(req.query.id);
+    if (!product) {
+        return next(new ErrorHandler('Product Not found', 404));
+    }
+    res.status(200).json({
+        success: true,
+        reviews: product.reviews,
+    });
 });
-// Delete Reviews
-exports.getAllReviews = catchAsyncError(async (req, res, next) => {
-    const product = await Product.findById(req.params.id);
 
+// Delete Reviews
+exports.deleteReview = catchAsyncError(async (req, res, next) => {
+    const product = await Product.findById(req.query.productId);
+    if (!product) return next(ErrorHandler('Product Not found', 404));
+    const reviews = product.reviews.filter((review) => review._id.toString() !== req.query.id);
+
+    // set ratings after remove reviews
+    let ratingsAvg = 0;
+    reviews.forEach((rev) => {
+        ratingsAvg += rev.rating;
+    });
+    ratingsAvg = (ratingsAvg / product.reviews.length).toFixed(1);
+    await Product.findByIdAndUpdate(
+        req.query.productId,
+        { reviews, ratings: ratingsAvg, numberOfReviews: reviews.length },
+        {
+            new: true,
+            runValidators: true,
+            useFindAndModify: false,
+        }
+    );
+    res.status(200).json({
+        success: true,
+        message: 'Review Deleted Successfully',
+    });
 });

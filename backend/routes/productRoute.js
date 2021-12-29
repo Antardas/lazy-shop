@@ -1,3 +1,11 @@
+/*
+❱❱❱
+❱❱❱ Title ⇏ All product related route access can Here
+❱❱❱ Description ⇏
+❱❱❱ Author ⇏ Antar Das
+❱❱❱ Date ⇏ 30-DEC-2021
+❱❱❱
+*/
 const express = require('express');
 const {
     getAllProducts,
@@ -6,6 +14,8 @@ const {
     deleteProduct,
     getOneProduct,
     createReview,
+    getAllReviews,
+    deleteReview,
 } = require('../controllers/productController');
 const { isAuthenticated, authorizedRoles } = require('../middlewares/auth');
 
@@ -20,4 +30,7 @@ router
     .put(isAuthenticated, authorizedRoles('admin'), updateProduct)
     .delete(isAuthenticated, authorizedRoles('admin'), deleteProduct);
 router.route('/review').put(isAuthenticated, createReview);
+
+router.route('/reviews').get(getAllReviews).delete(deleteReview);
+
 module.exports = router;
