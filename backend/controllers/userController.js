@@ -2,7 +2,7 @@
 const crypto = require('crypto');
 const catchAsyncError = require('../middlewares/catchAsyncError'); // Instead repatative try catch block
 const User = require('../models/userModels');
-const generateToken = require('../routes/jwtToken');
+const generateToken = require('../utils/jwtToken');
 const ErrorHandler = require('../utils/errorHandler');
 const sendEmail = require('../utils/sendEmail');
 // Register a user
@@ -64,7 +64,7 @@ exports.forgotPassword = catchAsyncError(async (req, res, next) => {
     user.save({ validateBeforeSave: false });
 
     const resetPasswordUrl = `${req.protocol}://${req.get(
-        'host'
+        'host',
     )}/api/v1/password/reset/${resetToken}`;
     const message = `your Reset password Token is :- \n\n ${resetPasswordUrl} \n\n if you have not request this email then Please Ignore it`;
     try {
